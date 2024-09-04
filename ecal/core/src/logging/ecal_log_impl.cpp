@@ -98,49 +98,37 @@ namespace
   {
     std::cout << "[eCAL][Logging][Warning] " << msg_ << "\n";
   }
-
-  void createLogHeader(std::stringstream& msg_stream, const eCAL_Logging_eLogLevel level_, const eCAL::Logging::SAttributes& attr_, const eCAL::Time::ecal_clock::time_point& log_time_)
+ 
+  void triggerLogging(const std::unique_ptr<spdlog::logger>& logger_, const std::string& msg_, const eCAL_Logging_eLogLevel level_)
   {
-    msg_stream << std::chrono::duration_cast<std::chrono::milliseconds>(log_time_.time_since_epoch()).count();
-    msg_stream << " ms";
-    msg_stream << " | ";
-    msg_stream << attr_.host_name;
-    msg_stream << " | ";
-    msg_stream << attr_.unit_name;
-    msg_stream << " | ";
-    msg_stream << attr_.process_id;
-    msg_stream << " | ";
     switch(level_)
     {
-    case log_level_none:
-    case log_level_all:
-      break;
-    case log_level_info:
-      msg_stream << "info";
-      break;
-    case log_level_warning:
-      msg_stream << "warning";
-      break;
-    case log_level_error:
-      msg_stream << "error";
-      break;
-    case log_level_fatal:
-      msg_stream << "fatal";
-      break;
-    case log_level_debug1:
-      msg_stream << "debug1";
-      break;
-    case log_level_debug2:
-      msg_stream << "debug2";
-      break;
-    case log_level_debug3:
-      msg_stream << "debug3";
-      break;
-    case log_level_debug4:
-      msg_stream << "debug4";
-      break;
+      case log_level_none:
+        break;
+      case log_level_all:
+        logger_->trace(msg_);
+        break;
+      case log_level_info:
+        logger_->info(msg_);
+        break;
+      case log_level_warning:
+        logger_->warn(msg_);
+        break;
+      case log_level_error:
+        logger_->error(msg_);
+        break;
+      case log_level_fatal:
+        logger_->critical(msg_);
+        break;
+      case log_level_debug1:        
+      case log_level_debug2:
+      case log_level_debug3:
+      case log_level_debug4:
+        logger_->debug(msg_);
+        break;
+      default:
+        break;
     }
-    msg_stream << " | ";
   }
 }
 
@@ -148,8 +136,7 @@ namespace eCAL
 {
   CLog::CLog(const Logging::SAttributes& attr_) :
           m_created(false),
-          m_attributes(attr_),
-          m_logfile(nullptr)
+          m_attributes(attr_)
   {
   }
 
@@ -168,18 +155,29 @@ namespace eCAL
         const std::string tstring = get_time_str();
       
         m_logfile_name = m_attributes.file.path + tstring + "_" + m_attributes.unit_name + "_" + std::to_string(m_attributes.process_id) + ".log";
-        m_logfile = fopen(m_logfile_name.c_str(), "w");
+        auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(m_logfile_name);        
+        m_file_logger = std::make_unique<spdlog::logger>("eCAL_file_logger", file_sink);
       }
       else
       {
         logWarningToConsole("Logging for file enabled, but specified path to log is not valid: " + m_attributes.file.path);
       }
 
-      if (m_logfile == nullptr)
+      if (m_file_logger == nullptr)
       {
-        logWarningToConsole("Logging for file enabled, but file could not be created.");
-      }
-      
+        logWarningToConsole("Logging for file enabled, but file logger could not be created.");
+      }   
+    }
+
+    if(m_attributes.console.enabled)
+    {
+      auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+      m_console_logger = std::make_unique<spdlog::logger>("eCAL_console_logger", console_sink);
+
+      if (m_console_logger == nullptr)
+      {
+        logWarningToConsole("Logging for console enabled, but console logger could not be created.");
+      }      
     }
 
     if(m_attributes.udp.enabled)
@@ -218,9 +216,9 @@ namespace eCAL
 
     m_udp_logging_sender.reset();
 
-    if(m_logfile != nullptr) fclose(m_logfile);
-    m_logfile = nullptr;
-
+    m_file_logger.reset();
+    m_console_logger.reset();
+    
     m_created = false;
   }
 
@@ -268,22 +266,14 @@ namespace eCAL
     const bool log_to_console = m_attributes.console.enabled && log_con != 0;
     const bool log_to_file    = m_attributes.file.enabled && log_file != 0;
 
-    if (log_to_console || log_to_file)
+    if(log_to_console && m_console_logger != nullptr)
     {
-      m_log_message_stream.str("");
-      createLogHeader(m_log_message_stream, level_, m_attributes, log_time);
-      m_log_message_stream << msg_;
-    
-      if(log_to_console)
-      {
-        std::cout << m_log_message_stream.str() << '\n';
-      }
+      triggerLogging(m_console_logger, msg_, level_);
+    }
 
-      if (log_to_file)
-      {
-        fprintf(m_logfile, "%s\n", m_log_message_stream.str().c_str());
-        fflush(m_logfile);
-      }
+    if (log_to_file && m_file_logger != nullptr)
+    {
+      triggerLogging(m_file_logger, msg_, level_);
     }
 
     if(m_attributes.udp.enabled && log_udp != 0 && m_udp_logging_sender)

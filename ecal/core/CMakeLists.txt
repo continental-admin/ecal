@@ -21,6 +21,7 @@ project(core VERSION ${eCAL_VERSION_STRING})
 find_package(asio             REQUIRED)
 find_package(Threads          REQUIRED)
 find_package(ecaludp          REQUIRED)
+find_package(spdlog           REQUIRED)
 
 if (ECAL_CORE_CONFIGURATION)
   find_package(yaml-cpp       REQUIRED)
@@ -719,6 +720,7 @@ target_link_libraries(${PROJECT_NAME}
     asio::asio
     Threads::Threads
     eCAL::ecal-utils
+    spdlog::spdlog
 )
 
 set_property(TARGET ${PROJECT_NAME}   PROPERTY FOLDER core)

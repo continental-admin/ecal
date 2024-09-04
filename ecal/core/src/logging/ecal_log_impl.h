@@ -36,6 +36,10 @@
 #include "attributes/logging_attributes.h"
 #include "ecal_global_accessors.h"
 
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
+#include "spdlog/sinks/stdout_color_sinks.h"
+
 #include <atomic>
 #include <list>
 #include <memory>
@@ -140,10 +144,12 @@ namespace eCAL
     // udp logging receiver
     std::shared_ptr<UDP::CSampleReceiver>  m_log_receiver;
 
-    std::string                            m_logfile_name;
-    FILE*                                  m_logfile;
+    std::string                            m_logfile_name;    
 
     Logging::SAttributes                   m_attributes;
     std::stringstream                      m_log_message_stream;
+
+    std::unique_ptr<spdlog::logger>        m_file_logger;
+    std::unique_ptr<spdlog::logger>        m_console_logger;
   };
 }
