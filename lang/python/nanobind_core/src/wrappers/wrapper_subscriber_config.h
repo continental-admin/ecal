@@ -66,9 +66,9 @@ namespace eCAL
         {
             CNBSubscriberConfiguration();
 
-            SHM::Configuration shm;
-            UDP::Configuration udp;
-            TCP::Configuration tcp;
+            SHM::CNBSHMConfiguration shm;
+            UDP::CNBUDPConfiguration udp;
+            TCP::CNBTCPConfiguration tcp;
         };
     }
 }

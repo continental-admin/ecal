@@ -74,9 +74,9 @@ namespace eCAL
         {
             CNBPublisherConfiguration();
 
-            SHM::Configuration   shm;
-            UDP::Configuration   udp;
-            TCP::Configuration   tcp;
+            SHM::CNBSHMConfiguration   shm;
+            UDP::CNBUDPConfiguration   udp;
+            TCP::CNBTCPConfiguration   tcp;
 
             bool                 share_topic_type;                            //!< share topic type via registration
             bool                 share_topic_description;                     //!< share topic description via registration
