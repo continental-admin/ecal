@@ -60,4 +60,4 @@
 	url = https://github.com/eclipse-ecal/ecaludp.git
 [submodule "thirdparty/nanobind/nanobind"]
 	path = thirdparty/nanobind/nanobind
-	url = https://github.com/KerstinKeller/nanobind.git
+	url = https://github.com/wjakob/nanobind.git
