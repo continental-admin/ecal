@@ -1,6 +1,6 @@
 /* ========================= eCAL LICENSE =================================
  *
- * Copyright (C) 2016 - 2024 Continental Corporation
+ * Copyright (C) 2016 - 2025 Continental Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -115,14 +115,14 @@ namespace eCAL
 
       std::set<std::string> GetSubscribedTopics() const;
 
-      void EcalMessageReceived(const eCAL::Registration::STopicId& topic_id_, const eCAL::SReceiveCallbackData& data_);
+      void EcalMessageReceived(const Registration::STopicId& topic_id_, const SDataTypeInformation& datatype_info_, const SReceiveCallbackData& callback_data_);
 
       //////////////////////////////////////
       //// API for external threads     ////
       //////////////////////////////////////
       void GarbageCollect();
 
-      void SetTopicInfo(const std::map<std::string, TopicInfo>& topic_info_map);
+      void SetTopicInfo(const TopicInfoMap& topic_info_map);
 
     //////////////////////////////////////////////////////////////////////////////
     //// Private functions                                                    ////
@@ -130,7 +130,7 @@ namespace eCAL
     private:
       void UpdateAndCleanSubscribers();
 
-      std::set<std::string> FilterAvailableTopics_NoLock(const std::map<std::string, TopicInfo>& topic_info_map) const;
+      std::set<std::string> FilterAvailableTopics_NoLock(const TopicInfoMap& topic_info_map) const;
 
       void CreateNewSubscribers_NoLock(const std::set<std::string>& topic_set);
       void RemoveOldSubscribers_NoLock(const std::set<std::string>& topic_set);

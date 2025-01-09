@@ -1,6 +1,6 @@
 /* ========================= eCAL LICENSE =================================
  *
- * Copyright (C) 2016 - 2024 Continental Corporation
+ * Copyright (C) 2016 - 2025 Continental Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -695,12 +695,12 @@ namespace eCAL
       return subscribed_topics;
     }
 
-    void EcalRecImpl::EcalMessageReceived(const eCAL::Registration::STopicId& topic_id_, const eCAL::SReceiveCallbackData& data_)
+    void EcalRecImpl::EcalMessageReceived(const Registration::STopicId& topic_id_, const SDataTypeInformation& datatype_info_, const SReceiveCallbackData& callback_data_)
     {
       auto ecal_receive_time   = eCAL::Time::ecal_clock::now();
       auto system_receive_time = std::chrono::steady_clock::now();
 
-      std::shared_ptr<Frame> frame = std::make_shared<Frame>(&data_, topic_id_.topic_name, ecal_receive_time, system_receive_time);
+      std::shared_ptr<Frame> frame = std::make_shared<Frame>(callback_data_, topic_id_, ecal_receive_time, system_receive_time);
 
       pre_buffer_.push_back(frame);
 
@@ -721,7 +721,7 @@ namespace eCAL
       pre_buffer_.remove_old_frames();
     }
 
-    void EcalRecImpl::SetTopicInfo(const std::map<std::string, TopicInfo>& topic_info_map)
+    void EcalRecImpl::SetTopicInfo(const TopicInfoMap& topic_info_map)
     {
       // Create subscribers for new topics if necessary
       {
@@ -762,7 +762,7 @@ namespace eCAL
       RemoveOldSubscribers_NoLock(filtered_topic_set);
     }
 
-    std::set<std::string> EcalRecImpl::FilterAvailableTopics_NoLock(const std::map<std::string, TopicInfo>& topic_info_map) const
+    std::set<std::string> EcalRecImpl::FilterAvailableTopics_NoLock(const TopicInfoMap& topic_info_map) const
     {
       std::set<std::string> topic_set;
 
@@ -776,13 +776,13 @@ namespace eCAL
 
         // Evaluate the record mode (All / Blacklist / Whitelist)
         if ((record_mode_ == RecordMode::Blacklist)
-          && (listed_topics_.find(topic_info.first) != listed_topics_.end()))
+          && (listed_topics_.find(topic_info.first.topic_name) != listed_topics_.end()))
         {
           // The topic is blacklisted
           continue;
         }
         else if ((record_mode_ == RecordMode::Whitelist)
-          && (listed_topics_.find(topic_info.first) == listed_topics_.end()))
+          && (listed_topics_.find(topic_info.first.topic_name) == listed_topics_.end()))
         {
           // The topic is not whitelisted
           continue;
@@ -808,7 +808,7 @@ namespace eCAL
         }
 
         // Add the topic to the filtered set if we haven't found any reason not to do that :)
-        topic_set.emplace(topic_info.first);
+        topic_set.emplace(topic_info.first.topic_name);
       }
 
       return topic_set;
@@ -828,7 +828,7 @@ namespace eCAL
             info_ = { false, "Error creating eCAL subsribers" };
             continue;
           }
-          if (!subscriber->SetReceiveCallback(std::bind(&EcalRecImpl::EcalMessageReceived, this, std::placeholders::_1, std::placeholders::_3)))
+          if (!subscriber->SetReceiveCallback(std::bind(&EcalRecImpl::EcalMessageReceived, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)))
           {
             EcalRecLogger::Instance()->error("Error adding callback for subscriber on topic " + topic);
             info_ = { false, "Error creating eCAL subsribers" };
