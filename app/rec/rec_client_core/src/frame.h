@@ -1,6 +1,6 @@
 /* ========================= eCAL LICENSE =================================
  *
- * Copyright (C) 2016 - 2019 Continental Corporation
+ * Copyright (C) 2016 - 2024 Continental Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,16 +32,16 @@ namespace eCAL
     class Frame
     {
     public:
-      Frame(const eCAL::SReceiveCallbackData* const callback_data, const std::string& topic_name, const eCAL::Time::ecal_clock::time_point receive_time, std::chrono::steady_clock::time_point system_receive_time)
-        : ecal_publish_time_(std::chrono::duration_cast<eCAL::Time::ecal_clock::duration>(std::chrono::microseconds(callback_data->time)))
+      Frame(const eCAL::SReceiveCallbackData& callback_data, const Registration::STopicId& topic, const eCAL::Time::ecal_clock::time_point receive_time, std::chrono::steady_clock::time_point system_receive_time)
+        : ecal_publish_time_(std::chrono::duration_cast<eCAL::Time::ecal_clock::duration>(std::chrono::microseconds(callback_data.time)))
         , ecal_receive_time_(receive_time)
         , system_receive_time_(system_receive_time)
-        , topic_name_(topic_name)
-        , clock_(callback_data->clock)
-        , id_(callback_data->id)
+        , topic_(topic)
+        , clock_(callback_data.clock)
+        , id_(callback_data.id)
       {
-        data_.reserve(callback_data->size);
-        data_.assign((char*)callback_data->buf, (char*)callback_data->buf + callback_data->size);
+        data_.reserve(callback_data.size);
+        data_.assign((char*)callback_data.buf, (char*)callback_data.buf + callback_data.size);
       }
 
       Frame()
@@ -57,7 +57,7 @@ namespace eCAL
       eCAL::Time::ecal_clock::time_point    ecal_publish_time_;
       eCAL::Time::ecal_clock::time_point    ecal_receive_time_;
       std::chrono::steady_clock::time_point system_receive_time_;
-      std::string                           topic_name_;
+      Registration::STopicId                topic_;
       long long                             clock_;
       long long                             id_;
     };
