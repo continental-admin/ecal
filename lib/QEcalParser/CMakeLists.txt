@@ -92,6 +92,14 @@ target_link_libraries(${PROJECT_NAME}
 
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_14)
 
+if(COMMAND ecal_add_compiler_warnings)
+    ecal_add_compiler_warnings(${PROJECT_NAME})
+else()
+    message(AUTHOR_WARNING
+        "ecal_add_compiler_warnings() not available. Not setting compiler warnings!"
+    )
+endif()
+
 if(MSVC)
     # Disable Compiler warning "Conditional expression is constant"
     set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/wd4127 /wd4714")

@@ -42,7 +42,7 @@ set(sources
     src/functions/username.h
 )
 
-add_library (${PROJECT_NAME} 
+add_library (${PROJECT_NAME}
     ${includes}
     ${sources}
 )
@@ -60,6 +60,14 @@ if(WIN32)
 endif()
 
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_14)
+
+if(COMMAND ecal_add_compiler_warnings)
+    ecal_add_compiler_warnings(${PROJECT_NAME})
+else()
+    message(AUTHOR_WARNING
+        "ecal_add_compiler_warnings() not available. Not setting compiler warnings!"
+    )
+endif()
 
 # Create a source tree that mirrors the filesystem
 source_group(TREE "${CMAKE_CURRENT_LIST_DIR}"

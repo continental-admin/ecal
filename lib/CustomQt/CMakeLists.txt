@@ -75,12 +75,20 @@ target_include_directories(${PROJECT_NAME}
   PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
   PUBLIC  ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-target_link_libraries(${PROJECT_NAME}
+target_link_libraries(${PROJECT_NAME} PUBLIC
     Qt${QT_VERSION_MAJOR}::Core
     Qt${QT_VERSION_MAJOR}::Widgets
 )
 
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_14)
+
+if(COMMAND ecal_add_compiler_warnings)
+    ecal_add_compiler_warnings(${PROJECT_NAME})
+else()
+    message(AUTHOR_WARNING
+        "ecal_add_compiler_warnings() not available. Not setting compiler warnings!"
+    )
+endif()
 
 # Create a source tree that mirrors the filesystem
 source_group(TREE "${CMAKE_CURRENT_LIST_DIR}"
