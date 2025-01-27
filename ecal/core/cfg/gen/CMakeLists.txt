@@ -28,6 +28,8 @@ add_executable(${PROJECT_NAME}
   ${ECAL_CORE_PROJECT_ROOT}/core/src/config/ecal_path_processing.cpp
 )
 
+ecal_add_compiler_warnings(${PROJECT_NAME})
+
 # Set the output path for the generated YAML file
 set(YAML_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/${ECAL_YAML})
 
