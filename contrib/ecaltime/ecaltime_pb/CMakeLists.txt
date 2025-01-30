@@ -46,8 +46,6 @@ else()
   ecal_add_shared_library(${PROJECT_NAME} src/ecaltime_pb.cpp)
 endif()
 
-add_library(eCAL::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
-
 protobuf_target_cpp(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/src INSTALL_FOLDER include ${ProtoFiles})
 
 target_compile_options(${PROJECT_NAME}

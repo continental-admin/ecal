@@ -78,8 +78,7 @@ if (ECAL_USE_CURL)
         )
 endif()
 
-add_library (${PROJECT_NAME} ${source_files})
-add_library (eCAL::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+ecal_add_library (${PROJECT_NAME} ${source_files})
 
 target_include_directories(${PROJECT_NAME} PRIVATE src)
 target_include_directories(${PROJECT_NAME} PUBLIC  include)
